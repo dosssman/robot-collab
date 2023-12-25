@@ -66,10 +66,10 @@ You must first output 'EXECUTE\n', then give **exactly** one action per robot, p
 Example: 'EXECUTE\nNAME Alice ACTION PICK red_square PLACE panel3\nNAME Bob ACTION WAIT\nNAME Chad ACTION PICK green_trapezoid PLACE panel6\n'
 """
 
-class SortOneBlockTask(MujocoSimEnv):
+class TriageBlockTask(MujocoSimEnv):
     def __init__( 
         self,
-        filepath: str = "rocobench/envs/task_sort.xml", 
+        filepath: str = "rocobench/envs/task_triage.xml", 
         **kwargs,
     ):    
         self.robot_names = ["ur5e_robotiq", "panda", "ur5e_suction"] 
@@ -93,8 +93,8 @@ class SortOneBlockTask(MujocoSimEnv):
             yellow_trapezoid="panel6",
         )
         
-        super(SortOneBlockTask, self).__init__(
-            filepath=filepath, 
+        super().__init__(
+            filepath=filepath,
             task_objects=SORT_ALL_OBJECTS,
             agent_configs=dict(
                 ur5e_robotiq=UR5E_ROBOTIQ_CONSTANTS,
@@ -474,8 +474,8 @@ In the plan, at least one robot should be acting, you can't all WAIT.
     def get_contact(self):
         contacts = super().get_contact()
         # temp fix! 
-        contacts["panda"] = [c for c in contacts["panda"] if c in self.cube_names]
         contacts["ur5e_robotiq"] = [c for c in contacts["ur5e_robotiq"] if c in self.cube_names]
+        contacts["panda"] = [c for c in contacts["panda"] if c in self.cube_names]
         contacts["ur5e_suction"] = [c for c in contacts["ur5e_suction"] if c in self.cube_names]
         return contacts
     

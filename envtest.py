@@ -5,6 +5,7 @@ import numpy as np
 
 # Robot envs dependencies
 from rocobench.envs import SortOneBlockTask, CabinetTask, MoveRopeTask, SweepTask, MakeSandwichTask, PackGroceryTask, MujocoSimEnv, SimRobot, visualize_voxel_scene
+from rocobench.envs.task_triage import TriageBlockTask
 
 # Plotting and visualization of the observations
 import matplotlib.pyplot as plt
@@ -48,6 +49,7 @@ def main():
         "sweep": SweepTask,
         "sandwich": MakeSandwichTask,
         "pack": PackGroceryTask,
+        "triage": TriageBlockTask
     }
 
     assert args.task in TASK_NAME_MAP.keys(), f"Task {args.task} not supported"
@@ -98,23 +100,36 @@ def main():
     # reset env ?
     obs = env.reset()
     done = False
+    t = 0
 
     from rocobench.envs import SimAction
-    dummy_action = SimAction(
-        ctrl_idxs=np.arange(17),
-        ctrl_vals=np.random.uniform(0, 0.1, size=[17]),
-        qpos_idxs=np.arange(17),
-        qpos_target=np.random.uniform(0, 0.1, size=[17])
-    )
+
+    print("\n\n### INFO render_cameras")
+    print(env.render_cameras)
+    print("###\n\n")
+    print(obs)
 
     while not done:
+        print(f"Current step: {t}")
+        dummy_action = SimAction(
+            ctrl_idxs=np.arange(17),
+            # ctrl_vals=np.random.uniform(0, 0.01, size=[17]),
+            ctrl_vals=np.zeros([17]),
+            qpos_idxs=np.arange(17),
+            # qpos_target=np.random.uniform(0, 0.01, size=[17]),
+            qpos_target=np.zeros([17])
+        )
+        
         _, _, done, _ = env.step(dummy_action)
         plt.imshow(env.render_camera(env.render_cameras[-1]))
         plt.show(block=False)
+        t += 1
         # time.sleep(1)
         plt.pause(0.1)
+        # input()
     
-    print(obs)
+    print(f"Task is done: {done}")
+    
 
     # while True:
     #     env.render()
