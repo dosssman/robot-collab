@@ -9,13 +9,20 @@ from real_world.realur5 import UR5RTDE
 from real_world.real_env import RealEnv
 from real_world.task_blockincup import BlockInCupTask
 from real_world.prompts import LLMResponseParser, FeedbackManager, DialogPrompter
+from dotenv import load_dotenv
+from prompting.openai_config import OpenaiConfig
 # print out logging.info
 logging.basicConfig(level=logging.INFO)
 logging.root.setLevel(logging.INFO)
 
 key_path="../openai_key.json"  # TODO: change this to your own key 
 OPENAI_KEY = json.load(open(key_path))
-openai.api_key = OPENAI_KEY 
+# openai.api_key = OPENAI_KEY
+# Custom OpenAI API usage
+load_dotenv()
+_OPENAI_CONFIG = OpenaiConfig.from_env()
+openai.organization = _OPENAI_CONFIG.organization
+openai.api_key = _OPENAI_CONFIG.api_key
 
 WS_CROP_X = (180, -120)
 WS_CROP_Y = (300, -380)

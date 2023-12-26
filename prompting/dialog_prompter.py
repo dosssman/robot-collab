@@ -13,9 +13,17 @@ from rocobench.envs import MujocoSimEnv, EnvState
 from .feedback import FeedbackManager
 from .parser import LLMResponseParser
 
+from dotenv import load_dotenv
+from prompting.openai_config import OpenaiConfig
+
 assert os.path.exists("openai_key.json"), "Please put your OpenAI API key in a string in robot-collab/openai_key.json"
 OPENAI_KEY = str(json.load(open("openai_key.json")))
-openai.api_key = OPENAI_KEY
+# openai.api_key = OPENAI_KEY
+# Custom OpenAI API usage
+load_dotenv()
+_OPENAI_CONFIG = OpenaiConfig.from_env()
+openai.organization = _OPENAI_CONFIG.organization
+openai.api_key = _OPENAI_CONFIG.api_key
 
 PATH_PLAN_INSTRUCTION="""
 [Path Plan Instruction]

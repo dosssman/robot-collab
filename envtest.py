@@ -6,6 +6,7 @@ import numpy as np
 # Robot envs dependencies
 from rocobench.envs import SortOneBlockTask, CabinetTask, MoveRopeTask, SweepTask, MakeSandwichTask, PackGroceryTask, MujocoSimEnv, SimRobot, visualize_voxel_scene
 from rocobench.envs.task_triage import TriageBlockTask
+from rocobench.envs.task_triage_scratch import TriageBlockScratchTask
 
 # Plotting and visualization of the observations
 import matplotlib.pyplot as plt
@@ -49,7 +50,8 @@ def main():
         "sweep": SweepTask,
         "sandwich": MakeSandwichTask,
         "pack": PackGroceryTask,
-        "triage": TriageBlockTask
+        "triage": TriageBlockTask,
+        "triage_scratch": TriageBlockScratchTask
     }
 
     assert args.task in TASK_NAME_MAP.keys(), f"Task {args.task} not supported"
@@ -84,7 +86,7 @@ def main():
         render_freq = 3000
     env = env_cl(
         render_freq=render_freq,
-        image_hw=(400,400),
+        image_hw=(480,480),
         sim_forward_steps=300,
         error_freq=30,
         error_threshold=1e-5,
@@ -106,27 +108,62 @@ def main():
 
     print("\n\n### INFO render_cameras")
     print(env.render_cameras)
+    # print(env.physics.model.body("ur5e_robotiq"))
+    print(env.ndata.qpos)
     print("###\n\n")
-    print(obs)
+    print("\n\n### obs fields")
+    # print(obs.objects.keys())
+    # env.physics.named.data.qpos[0] = 1.57
+    # env.physics.named.data.qpos[1] = 0.785
+    env.ndata.qpos[11] = 0.785
+    env.physics.forward()
+    print("panda qpos and length")
+    print(f"Length: {len(obs.panda.qpos)}\n{obs.panda.qpos}")
+    print("")
+    print("ur5e_robotiq qpos and length")
+    print(f"Length: {len(obs.ur5e_robotiq.qpos)}\n{obs.ur5e_robotiq.qpos}")
+    print("")
+    print("ur5e_suction qpos and length")
+    print(f"Length: {len(obs.ur5e_suction.qpos)}\n{obs.ur5e_suction.qpos}")
+    print(env.physics.named.data.qpos)
+    # print(obs.get_object("panda"))
+    print("###\n\n")
 
+    fig, ax = plt.subplots(1, 1)
+    # fig, ax = plt.subplots(1, 1, figsize=[6, 6], dpi=400)
+    # ax.imshow(env.render_camera(env.render_cameras[-1], width=1500, height=1000))
+    # plt.pause(0.1)
+    # input()
+
+    # robots_adjust_actions = SimAction(
+    #     ctrl_idxs=[i for i in range(17)],
+    #     ctrl_vals=[0 for _ in range(17)],
+
+    #     qpos_idxs=[2],
+    #     qpos_target=[1.57]
+    # )
+    # env.step(robots_adjust_actions)
+    
     while not done:
         print(f"Current step: {t}")
         dummy_action = SimAction(
             ctrl_idxs=np.arange(17),
-            # ctrl_vals=np.random.uniform(0, 0.01, size=[17]),
+            # ctrl_vals=np.random.uniform(0, 0.35, size=[17]),
             ctrl_vals=np.zeros([17]),
             qpos_idxs=np.arange(17),
-            # qpos_target=np.random.uniform(0, 0.01, size=[17]),
-            qpos_target=np.zeros([17])
+            qpos_target=np.random.uniform(0, 0.35, size=[17]),
+            # qpos_target=np.zeros([17])
         )
         
         _, _, done, _ = env.step(dummy_action)
-        plt.imshow(env.render_camera(env.render_cameras[-1]))
+        ax.imshow(env.render_camera(env.render_cameras[-1], width=480, height=480))
+        ax.set_xticks([])
+        ax.set_yticks([])
+        fig.tight_layout()
         plt.show(block=False)
         t += 1
         # time.sleep(1)
         plt.pause(0.1)
-        # input()
     
     print(f"Task is done: {done}")
     

@@ -546,7 +546,7 @@ In the plan, at least one robot should be acting, you can't all WAIT.
 
 
 if __name__ == "__main__":
-    env = SortOneBlockTask(np_seed=0, render_point_cloud=0)
+    env = TriageBlockTask(np_seed=0, render_point_cloud=0)
     obs = env.reset()
     # obs.scene.show()
     print(env.get_action_prompt())
